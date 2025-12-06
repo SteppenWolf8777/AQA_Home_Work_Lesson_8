@@ -5,3 +5,5 @@ pathlib==1.0.1
 selenium==4.38.0
 pydantic~=2.12.5
 virtualenv~=20.35.4
+black==25.9.0
+flake8==7.3.0

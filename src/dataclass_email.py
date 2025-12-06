@@ -8,6 +8,7 @@ from src.status import Status
 @dataclass
 class Email:
     """Модель email письма"""
+
     subject: str
     body: str
     sender: Union[str, EmailAddress]
@@ -54,10 +55,10 @@ class Email:
         if not text:
             return ""
         # Заменяем табы и переводы строк на пробелы
-        text = text.replace('\t', ' ').replace('\n', ' ')
+        text = text.replace("\t", " ").replace("\n", " ")
         # Убираем лишние пробелы
         words = text.split()
-        return ' '.join(words)
+        return " ".join(words)
 
     def add_short_body(self, length: int = 50) -> None:
         """Формирует сокращенную версию тела письма"""
@@ -83,8 +84,7 @@ class Email:
         self.body = self._clean_text(self.body)
 
         # Проверка валидности
-        if (self.subject and self.body and
-                self.sender and self.recipients):
+        if self.subject and self.body and self.sender and self.recipients:
             self.status = Status.READY
         else:
             self.status = Status.INVALID
@@ -98,11 +98,17 @@ class Email:
 
     def __repr__(self) -> str:
         """Строковое представление с маскированным отправителем"""
-        sender_masked = self.sender.masked if isinstance(self.sender, EmailAddress) else str(self.sender)
+        sender_masked = (
+            self.sender.masked
+            if isinstance(self.sender, EmailAddress)
+            else str(self.sender)
+        )
         recipients_list = [str(r) for r in self.recipients]
         recipients_str = ", ".join(recipients_list)
 
-        return (f"Кому: {recipients_str}\n"
-                f"От: {sender_masked}\n"
-                f"Тема: {self.subject}\n"
-                f"Статус: {self.status}")
+        return (
+            f"Кому: {recipients_str}\n"
+            f"От: {sender_masked}\n"
+            f"Тема: {self.subject}\n"
+            f"Статус: {self.status}"
+        )

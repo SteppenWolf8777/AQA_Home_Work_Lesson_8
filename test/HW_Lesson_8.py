@@ -85,7 +85,11 @@ def test_send_email_multiple_recipients():
 
     assert len(results) == 3
     assert all(msg.status == Status.SENT for msg in results)
-    assert {msg.recipients[0].address for msg in results} == {"b@b.com", "c@c.com", "d@d.com"}
+    assert {msg.recipients[0].address for msg in results} == {
+        "b@b.com",
+        "c@c.com",
+        "d@d.com",
+    }
 
 
 def test_send_email_failed_if_not_ready():
@@ -177,13 +181,10 @@ def test_send_email_single_recipient_creates_new_object():
     assert len(results) == 1
     sent = results[0]
 
-
     assert sent.status == Status.SENT
-
 
     assert sent is not email
     assert sent.recipients[0].address == "b@b.com"
-
 
     assert email.date is None
     assert email.recipients is not results[0].recipients
@@ -221,32 +222,35 @@ def test_repr_has_expected_format():
     assert "Тема:" in text
 
 
-@pytest.mark.parametrize("valid", [
-    "test@gmail.com",
-    "User@MAIL.RU",
-    "a@a.net",
-])
+@pytest.mark.parametrize(
+    "valid",
+    [
+        "test@gmail.com",
+        "User@MAIL.RU",
+        "a@a.net",
+    ],
+)
 def test_email_address_valid_equivalence(valid):
     addr = EmailAddress(valid)
     assert "@" in addr.address
 
-@pytest.mark.parametrize("valid", [
-    "test@gmail.com",
-    "User@MAIL.RU",
-    "User@MAIL.RU",
-    "USER@GMAIL.COM",
-    "a@a.net",
-    "  a@a.net   ",
-])
+
+@pytest.mark.parametrize(
+    "valid",
+    [
+        "test@gmail.com",
+        "User@MAIL.RU",
+        "User@MAIL.RU",
+        "USER@GMAIL.COM",
+        "a@a.net",
+        "  a@a.net   ",
+    ],
+)
 def test_email_address_valid_variants(valid):
     assert EmailAddress(valid).address == valid.lower().strip()
 
-@pytest.mark.parametrize("invalid", [
-    "noatsymbol.com",
-    "name@domain.xyz",
-    "",
-    "    "
-])
+
+@pytest.mark.parametrize("invalid", ["noatsymbol.com", "name@domain.xyz", "", "    "])
 def test_email_address_invalid_equivalence(invalid):
     with pytest.raises(ValueError):
         EmailAddress(invalid)
@@ -265,11 +269,14 @@ def test_add_short_body_boundary():
     assert email.short_body is None
 
 
-@pytest.mark.parametrize("subject, body, expected", [
-    ("Hello", "World", Status.READY),
-    ("", "World", Status.INVALID),
-    ("Hello", "", Status.INVALID),
-])
+@pytest.mark.parametrize(
+    "subject, body, expected",
+    [
+        ("Hello", "World", Status.READY),
+        ("", "World", Status.INVALID),
+        ("Hello", "", Status.INVALID),
+    ],
+)
 def test_prepare_equivalence(subject, body, expected):
     email = Email(subject, body, EmailAddress("a@a.com"), EmailAddress("b@b.com"))
     email.prepare()
@@ -320,13 +327,16 @@ def test_send_many_recipients_large():
     assert all(len(msg.recipients) == 1 for msg in results)
 
 
-@pytest.mark.parametrize("invalid", [
-    "abc",
-    "name@domain.xyz",
-    "noatsymbol.com",
-    "",
-    "   ",
-])
+@pytest.mark.parametrize(
+    "invalid",
+    [
+        "abc",
+        "name@domain.xyz",
+        "noatsymbol.com",
+        "",
+        "   ",
+    ],
+)
 def test_email_address_invalid(invalid):
     with pytest.raises(ValueError):
         EmailAddress(invalid)
@@ -356,7 +366,9 @@ def test_clean_data_and_prepare():
 
 
 def test_add_short_body_cut():
-    email = Email("Hi", "This text is long", EmailAddress("a@a.com"), EmailAddress("b@b.com"))
+    email = Email(
+        "Hi", "This text is long", EmailAddress("a@a.com"), EmailAddress("b@b.com")
+    )
     email.add_short_body(5)
     assert email.short_body == "This ..."
 
@@ -372,11 +384,15 @@ def test_add_short_body_empty_body():
     email.add_short_body(5)
     assert email.short_body is None
 
-@pytest.mark.parametrize("subject, body, expected", [
-    ("Hello", "World", Status.READY),
-    ("", "World", Status.INVALID),
-    ("Hello", "", Status.INVALID),
-])
+
+@pytest.mark.parametrize(
+    "subject, body, expected",
+    [
+        ("Hello", "World", Status.READY),
+        ("", "World", Status.INVALID),
+        ("Hello", "", Status.INVALID),
+    ],
+)
 def test_prepare_status_logic(subject, body, expected):
     email = Email(subject, body, EmailAddress("a@a.com"), EmailAddress("b@b.com"))
     email.prepare()
@@ -390,7 +406,13 @@ def test_prepare_invalid_if_no_recipients():
 
 
 def test_send_email_single_ready():
-    email = Email("Hello", "Msg", EmailAddress("a@a.com"), EmailAddress("b@b.com"), status=Status.READY)
+    email = Email(
+        "Hello",
+        "Msg",
+        EmailAddress("a@a.com"),
+        EmailAddress("b@b.com"),
+        status=Status.READY,
+    )
     service = EmailService(email)
     results = service.send_email()
 
@@ -399,14 +421,26 @@ def test_send_email_single_ready():
 
 
 def test_send_email_single_fails_if_not_ready():
-    email = Email("Hello", "Msg", EmailAddress("a@a.com"), EmailAddress("b@b.com"), status=Status.DRAFT)
+    email = Email(
+        "Hello",
+        "Msg",
+        EmailAddress("a@a.com"),
+        EmailAddress("b@b.com"),
+        status=Status.DRAFT,
+    )
     service = EmailService(email)
     results = service.send_email()
     assert results[0].status == Status.FAILED
 
 
 def test_send_does_not_mutate_original():
-    email = Email("Hello", "Msg", EmailAddress("a@a.com"), EmailAddress("b@b.com"), status=Status.READY)
+    email = Email(
+        "Hello",
+        "Msg",
+        EmailAddress("a@a.com"),
+        EmailAddress("b@b.com"),
+        status=Status.READY,
+    )
     service = EmailService(email)
     results = service.send_email()
 
