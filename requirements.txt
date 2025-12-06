@@ -1,0 +1,6 @@
+pytest==8.4.2
+selene==2.0.0rc9
+webdriver-manager==4.0.2
+pathlib==1.0.1
+selenium==4.38.0
+pydantic~=2.12.5
