@@ -4,3 +4,4 @@ webdriver-manager==4.0.2
 pathlib==1.0.1
 selenium==4.38.0
 pydantic~=2.12.5
+virtualenv~=20.35.4

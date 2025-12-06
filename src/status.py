@@ -1,10 +1,10 @@
-from enum import StrEnum
+from enum import StrEnum, auto
 
 
 class Status(StrEnum):
     """Статусы письма"""
-    DRAFT = "Черновик"
-    READY = "Готово к отправке"
-    SENT = "Отправлено"
-    FAILED = "Ошибка отправки"
-    INVALID = "Невалидное письмо"
+    DRAFT = auto()      # Черновик
+    READY = auto()      # Готово к отправке
+    SENT = auto()       # Отправлено
+    FAILED = auto()     # Ошибка отправки
+    INVALID = auto()    # Невалидное письмо

@@ -10,25 +10,60 @@ class Email:
     """Модель email письма"""
     subject: str
     body: str
-    sender: EmailAddress
-    recipients: Union[EmailAddress, List[EmailAddress]]
+    sender: Union[str, EmailAddress]
+    recipients: Union[str, EmailAddress, List[Union[str, EmailAddress]]]
     status: Status = Status.DRAFT
     date: Optional[datetime] = None
     short_body: Optional[str] = None
 
     def __post_init__(self):
+        """Инициализация после создания объекта"""
+        # Конвертируем отправителя в EmailAddress если это строка
+        if isinstance(self.sender, str):
+            self.sender = EmailAddress(self.sender)
+
+        # Конвертируем получателей в список EmailAddress
+        self._normalize_recipients()
+
+        # Инициализируем сокращенное тело если его нет
+        if self.short_body is None:
+            self.short_body = ""
+
+    def _normalize_recipients(self):
         """Приводит получателей к списку EmailAddress"""
-        if isinstance(self.recipients, EmailAddress):
-            self.recipients = [self.recipients]
+        if not self.recipients:
+            self.recipients = []
+        elif isinstance(self.recipients, (str, EmailAddress)):
+            # Если один получатель, оборачиваем в список
+            if isinstance(self.recipients, str):
+                self.recipients = [EmailAddress(self.recipients)]
+            else:
+                self.recipients = [self.recipients]
+        else:
+            # Если список, конвертируем каждый элемент
+            normalized = []
+            for recipient in self.recipients:
+                if isinstance(recipient, str):
+                    normalized.append(EmailAddress(recipient))
+                else:
+                    normalized.append(recipient)
+            self.recipients = normalized
 
     def _clean_text(self, text: str) -> str:
         """Очищает текст от лишних пробелов и переносов"""
-        text = text.replace("\n", " ").replace("\t", " ")
+        if not text:
+            return ""
+        # Заменяем табы и переводы строк на пробелы
+        text = text.replace('\t', ' ').replace('\n', ' ')
+        # Убираем лишние пробелы
         words = text.split()
-        return " ".join(words)
+        return ' '.join(words)
 
     def add_short_body(self, length: int = 50) -> None:
         """Формирует сокращенную версию тела письма"""
+        if not self.body:
+            self.short_body = ""
+            return
 
         cleaned_body = self._clean_text(self.body)
         if len(cleaned_body) <= length:
@@ -48,7 +83,8 @@ class Email:
         self.body = self._clean_text(self.body)
 
         # Проверка валидности
-        if self.subject and self.body and self.sender and self.recipients:
+        if (self.subject and self.body and
+                self.sender and self.recipients):
             self.status = Status.READY
         else:
             self.status = Status.INVALID
@@ -60,5 +96,13 @@ class Email:
         """Проверяет, готово ли письмо к отправке"""
         return self.status == Status.READY
 
+    def __repr__(self) -> str:
+        """Строковое представление с маскированным отправителем"""
+        sender_masked = self.sender.masked if isinstance(self.sender, EmailAddress) else str(self.sender)
+        recipients_list = [str(r) for r in self.recipients]
+        recipients_str = ", ".join(recipients_list)
 
-
+        return (f"Кому: {recipients_str}\n"
+                f"От: {sender_masked}\n"
+                f"Тема: {self.subject}\n"
+                f"Статус: {self.status}")
