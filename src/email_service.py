@@ -1,10 +1,7 @@
+import copy
 from datetime import datetime
 from typing import List
-
-from virtualenv.seed.embed.via_app_data.pip_install import copy
-
-from src.dataclass_email import Email
-from src.status import Status
+from src.email_models import Email, Status
 
 
 class EmailService:
@@ -27,6 +24,10 @@ class EmailService:
         # Подготавливаем письмо если нужно
         if email_copy.status != Status.READY:
             email_copy.prepare()
+
+        # Исправление: если нет получателей, возвращаем пустой список
+        if not email_copy.recipients or len(email_copy.recipients) == 0:
+            return []
 
         sent_emails = []
 
