@@ -424,6 +424,3 @@ def test_status_transitions():
     assert sent.status == Status.SENT
 
 
-# Запуск тестов через pytest
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
