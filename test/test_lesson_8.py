@@ -1,5 +1,7 @@
 import pytest
-from src.email_models import Email, EmailAddress, Status
+from src.email_address import EmailAddress
+from src.dataclass import Email
+from src.status import Status
 from src.email_service import EmailService
 
 

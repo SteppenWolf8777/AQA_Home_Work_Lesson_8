@@ -1,7 +1,8 @@
 import copy
 from datetime import datetime
 from typing import List
-from src.email_models import Email, Status
+from src.dataclass import Email
+from src.status import Status
 
 
 class EmailService:
